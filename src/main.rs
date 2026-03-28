@@ -1,4 +1,5 @@
 use minifb::{Key, Window, WindowOptions};
+use rodio::play;
 use std::{fs, thread::sleep, time::Duration, vec};
 
 use crate::sound::SoundPlayer;
@@ -72,7 +73,7 @@ fn main() {
     let len = file.len().min(MEMORY_SIZE);
     memory[..len].copy_from_slice(&file[..len]);
 
-    let mut player = SoundPlayer::new((AUDIOBUFFSIZE*60) as u32);
+    let mut player = SoundPlayer::new((AUDIOBUFFSIZE) as u32);
     let mut video_buffer: Vec<u32> = vec![0; VIDBUFFSIZE];
     let mut color_map: Vec<u32> = vec![0; COLORAMOUNT];
 
@@ -95,18 +96,12 @@ fn main() {
         }
         j += 1
     }
-    let mut frames = 60;
+    window.set_target_fps(60);
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        sleep(FRAMETIME);
         update(&mut memory);
         draw(&mut memory, &mut video_buffer, &color_map);
-        if frames == 60{
-            player.play();
-            frames=0;
-        }else{
-            append_sound(&mut memory, &mut player);
-            frames+=1;
-        }
+        append_sound(&mut memory, &mut player);
+        player.play();
         window
             .update_with_buffer(&video_buffer, WIDTH, HEIGHT)
             .unwrap();
