@@ -65,10 +65,13 @@ fn draw(mem: &mut Vec<u8>, vid: &mut Vec<u32>, colors: &Vec<u32>) -> () {
 }
 
 fn file_name() -> String {
-    args().nth(1).ok_or_else(|| {
-        println!("No file provided");
-        exit(1);
-    }).unwrap()
+    args()
+        .nth(1)
+        .ok_or_else(|| {
+            println!("No file provided");
+            exit(1);
+        })
+        .unwrap()
 }
 
 fn main() {
