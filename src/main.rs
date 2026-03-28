@@ -69,7 +69,7 @@ fn draw(mem: &mut Vec<u8>, vid: &mut Vec<u32>, colors: &Vec<u32>) -> () {
 
 fn main() {
     let mut memory: Vec<u8> = vec![0; MEMORY_SIZE];
-    let file = fs::read("Audio Test.BytePusher").unwrap();
+    let file = fs::read("Sprites.BytePusher").unwrap();
     let len = file.len().min(MEMORY_SIZE);
     memory[..len].copy_from_slice(&file[..len]);
 

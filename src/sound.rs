@@ -1,4 +1,4 @@
-use rodio::{ChannelCount, Player, SampleRate, buffer::SamplesBuffer};
+use rodio::{ChannelCount, Player, SampleRate, Source, buffer::SamplesBuffer};
 
 pub struct SoundPlayer {
     handle: rodio::MixerDeviceSink,
@@ -26,7 +26,7 @@ impl SoundPlayer {
         let data: Vec<f32> = self
             .sound
             .iter()
-            .map(|&s| (s as f32 - 128.0) / 128.0)
+            .map(|&s| (s as f32 - 128.0) / 128.0 / 2.)
             .collect();
         self.sound.clear();
         let channels = ChannelCount::new(1).unwrap();
