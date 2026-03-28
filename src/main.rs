@@ -1,6 +1,5 @@
 use minifb::{Key, Window, WindowOptions};
-use rodio::play;
-use std::{fs, thread::sleep, time::Duration, vec};
+use std::{env::args, fs, process::exit, vec};
 
 use crate::sound::SoundPlayer;
 
@@ -12,8 +11,6 @@ const WIDTH: usize = 256;
 const HEIGHT: usize = 256;
 const VIDBUFFSIZE: usize = 256 * 256;
 const AUDIOBUFFSIZE: usize = 256;
-
-const FRAMETIME: Duration = Duration::from_micros(16_667);
 
 const COLORAMOUNT: usize = 256;
 const COLORSTEP: usize = 0x33;
@@ -50,10 +47,10 @@ fn update(mem: &mut Vec<u8>) -> () {
         mem[dst] = mem[src];
     }
 }
-fn append_sound(mem: &mut Vec<u8>, player: &mut SoundPlayer) {
+fn play(mem: &mut Vec<u8>, player: &mut SoundPlayer) {
     let sound_addr = ((mem[6] as usize) << 16) | ((mem[7] as usize) << 8);
     let mut v = mem[sound_addr..sound_addr + AUDIOBUFFSIZE].to_vec();
-    player.append(&mut v);
+    player.play(&mut v);
 }
 
 fn draw(mem: &mut Vec<u8>, vid: &mut Vec<u32>, colors: &Vec<u32>) -> () {
@@ -67,9 +64,16 @@ fn draw(mem: &mut Vec<u8>, vid: &mut Vec<u32>, colors: &Vec<u32>) -> () {
     }
 }
 
+fn file_name() -> String {
+    args().nth(1).ok_or_else(|| {
+        println!("No file provided");
+        exit(1);
+    }).unwrap()
+}
+
 fn main() {
     let mut memory: Vec<u8> = vec![0; MEMORY_SIZE];
-    let file = fs::read("Sprites.BytePusher").unwrap();
+    let file = fs::read(file_name()).unwrap();
     let len = file.len().min(MEMORY_SIZE);
     memory[..len].copy_from_slice(&file[..len]);
 
@@ -100,8 +104,7 @@ fn main() {
     while window.is_open() && !window.is_key_down(Key::Escape) {
         update(&mut memory);
         draw(&mut memory, &mut video_buffer, &color_map);
-        append_sound(&mut memory, &mut player);
-        player.play();
+        play(&mut memory, &mut player);
         window
             .update_with_buffer(&video_buffer, WIDTH, HEIGHT)
             .unwrap();
