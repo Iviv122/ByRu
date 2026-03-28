@@ -1,18 +1,22 @@
 use rodio::{ChannelCount, Player, SampleRate, buffer::SamplesBuffer};
 
 pub struct SoundPlayer {
+    handle: rodio::MixerDeviceSink, 
     player: Player,
     sound: Vec<u8>,
+    samplerate: u32
 }
 impl SoundPlayer {
-    pub fn new() -> SoundPlayer {
+    pub fn new(sample_rate : u32) -> SoundPlayer {
         let handle =
             rodio::DeviceSinkBuilder::open_default_sink().expect("open default audio stream");
         let player = rodio::Player::connect_new(&handle.mixer());
         let s: Vec<u8> = vec![];
         Self {
+            handle,
             player: player,
             sound: s,
+            samplerate : sample_rate 
         }
     }
     pub fn append(&mut self, sounddata : &mut Vec<u8>) -> () {

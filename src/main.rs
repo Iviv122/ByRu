@@ -10,7 +10,7 @@ const MEMORY_SIZE: usize = 0x1000008;
 const WIDTH: usize = 256;
 const HEIGHT: usize = 256;
 const VIDBUFFSIZE: usize = 256 * 256;
-const AUDIOBUFFSIZE: usize = 256*60;
+const AUDIOBUFFSIZE: usize = 256;
 
 const FRAMETIME: Duration = Duration::from_micros(16_667);
 
@@ -72,7 +72,7 @@ fn main() {
     let len = file.len().min(MEMORY_SIZE);
     memory[..len].copy_from_slice(&file[..len]);
 
-    let mut player = SoundPlayer::new();
+    let mut player = SoundPlayer::new((AUDIOBUFFSIZE*60) as u32);
     let mut video_buffer: Vec<u32> = vec![0; VIDBUFFSIZE];
     let mut color_map: Vec<u32> = vec![0; COLORAMOUNT];
 
