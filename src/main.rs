@@ -1,4 +1,4 @@
-use std::{panic::PanicHookInfo, thread::sleep, time::Duration, vec};
+use std::{fs, thread::sleep, time::Duration, vec};
 
 use minifb::{Key, Window, WindowOptions};
 
@@ -6,7 +6,7 @@ const MEMORY_SIZE: usize = 0x1000008;
 
 const WIDTH: usize = 256;
 const HEIGHT: usize = 256;
-const VIDBUFFSIZE : usize = 256*256;
+const VIDBUFFSIZE: usize = 256 * 256;
 
 const RAMETIME: Duration = Duration::from_micros(16_667);
 
@@ -29,37 +29,41 @@ fn init_color_map(map: &mut Vec<u32>) -> () {
 }
 
 fn slice_to_u32(bytes: &[u8]) -> u32 {
-    // big indian
     let ret: u32 = ((bytes[0] as u32) << 16) | ((bytes[1] as u32) << 8) | (bytes[2] as u32);
     return ret;
 }
 
 fn update(mem: &mut Vec<u8>) -> () {
-    let mut pc: usize = slice_to_u32(&mem[2..2 + INTSIZE]) as usize;
+    let mut offset = slice_to_u32(&mem[2..2 + INTSIZE]) as usize;
 
     for _ in 1..=65536 {
-        let adr_a: usize = slice_to_u32(&mem[pc..pc + INTSIZE]) as usize;
-        let adr_b: usize = slice_to_u32(&mem[pc + INTSIZE..pc + INTSIZE * 2]) as usize;
-        let adr_c: usize = slice_to_u32(&mem[pc + INTSIZE * 2..pc + INTSIZE * 3]) as usize;
-
-        mem[adr_a] = mem[adr_b];
-        pc = adr_c;
+        let src = slice_to_u32(&mem[offset..offset + INTSIZE]) as usize;
+        offset += INTSIZE;
+        let dst = slice_to_u32(&mem[offset..offset + INTSIZE]) as usize;
+        offset += INTSIZE;
+        offset = slice_to_u32(&mem[offset..offset + INTSIZE]) as usize;
+        mem[dst] = mem[src];
     }
 }
 
-fn draw(mem: &mut Vec<u8>,vid: &mut Vec<u32>,colors: &Vec<u32>) -> () {
-    let pixels_addr: usize = ((mem[5] as u32) << 24) as usize;
-    
-    for i in 0..=VIDBUFFSIZE-1{
+fn draw(mem: &mut Vec<u8>, vid: &mut Vec<u32>, colors: &Vec<u32>) -> () {
+    let pixels_addr: usize = (mem[5] as usize) << 16;
+
+    for i in 0..=VIDBUFFSIZE - 1 {
         let y = i / WIDTH;
         let x = i % WIDTH;
-        let color_index = slice_to_u32(&mem[pixels_addr+i..pixels_addr+i+INTSIZE]) as usize;
-        vid[WIDTH*y+x] = colors[color_index];
+        let color_index = mem[pixels_addr + i] as usize;
+        vid[WIDTH * y + x] = colors[color_index];
     }
 }
+
 fn main() {
     let mut memory: Vec<u8> = vec![0; MEMORY_SIZE];
-    let mut video_buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
+    let file = fs::read("Scrolling Logo.BytePusher").unwrap();
+    let len = file.len().min(MEMORY_SIZE);
+    memory[..len].copy_from_slice(&file[..len]);
+
+    let mut video_buffer: Vec<u32> = vec![0; VIDBUFFSIZE];
     let mut color_map: Vec<u32> = vec![0; COLORAMOUNT];
 
     init_color_map(&mut color_map);
@@ -84,7 +88,7 @@ fn main() {
     while window.is_open() && !window.is_key_down(Key::Escape) {
         sleep(RAMETIME);
         update(&mut memory);
-        draw(&mut memory,&mut video_buffer,&color_map);
+        draw(&mut memory, &mut video_buffer, &color_map);
         window
             .update_with_buffer(&video_buffer, WIDTH, HEIGHT)
             .unwrap();
