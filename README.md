@@ -2,21 +2,31 @@
 
 usage: bury [File.BytePusher]
 
-example roms can be found in ./roms or wiki
+input:
+- click q in window to exit app
+
+example roms can be found in ./roms or [wiki](https://esolangs.org/wiki/BytePusher)
 ```
     ./bury Sprites.BytePusher 
 ```
+---
 
-input:
-- click q in window to exit app
+
+tl;dr 
+
+Bytepusher is perfect vm for you if you was tasked to make simpliest **usable** cpu
+
 
 If you don't know what BytePusher is i recommend read [wiki](https://esolangs.org/wiki/BytePusher), but generally speaking this is simple vm by itself features:
 
 - CPU with single simple operation and big endian ordering (``` A B C ```, copy from address A to adress B and go to computing line C)
+- 16 MiB RAM 
 - Web safe display which consists of 256x256 matrix of 216 colors
 - Keyboard Input
 - Audio Output
 - 60 FPS
+- 100% sandboxed
+- persistent
 
 This explicit implementation features:
 - Audio (i am not sure if works properly)
