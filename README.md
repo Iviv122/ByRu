@@ -2,6 +2,10 @@
 
 usage: bury [File.BytePusher]
 
+- currently stable for linux (uknown_gnu_linux)
+- windows build was tested via wine, worked fine
+- no mac build
+
 input:
 - click q in window to exit app
 
