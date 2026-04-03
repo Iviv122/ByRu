@@ -1,5 +1,7 @@
 # yet another bytepusher in rust
 
+https://github.com/user-attachments/assets/f0c82d03-31e9-4210-880d-114d3bb9f1f6
+
 usage: bury [File.BytePusher]
 
 - currently stable for linux (uknown_gnu_linux)
